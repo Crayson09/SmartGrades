@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Student (
+data class Student(
     @SerialName("_id")
     val id: String,
     val name: String,

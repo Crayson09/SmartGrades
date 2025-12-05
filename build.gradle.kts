@@ -1,7 +1,10 @@
+import com.diffplug.spotless.LineEnding
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
+    alias(libs.plugins.spotless)
     id("io.github.tabilzad.inspektor") version "0.8.9-alpha"
 }
 
@@ -49,5 +52,18 @@ swagger {
         enabled = true
         format = "yaml"
         saveInBuild = true
+    }
+}
+
+spotless {
+    kotlin {
+        targetExclude("build/generated/**/*")
+        targetExclude("build/generated-src/**/*")
+        toggleOffOn()
+        ktlint("1.7.1")
+        lineEndings = LineEnding.GIT_ATTRIBUTES
+        trimTrailingWhitespace()
+        leadingTabsToSpaces()
+        endWithNewline()
     }
 }

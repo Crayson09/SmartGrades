@@ -4,17 +4,17 @@ import com.mongodb.MongoClientSettings
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import dev.crayson.smartgrades.config.ConfigHandler
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.ApplicationStopped
 
 private val defaultCodecs = MongoClientSettings.getDefaultCodecRegistry()
-lateinit var mongoDatabase : MongoDatabase
+lateinit var mongoDatabase: MongoDatabase
 
 fun Application.configureDatabases() {
-   mongoDatabase = connectToMongoDB()
+    mongoDatabase = connectToMongoDB()
 }
 
 fun Application.connectToMongoDB(): MongoDatabase {
-
     val uri = ConfigHandler.config.mongoDBConnectionURL
     val databaseName = ConfigHandler.config.mongoDBDatabaseName
 

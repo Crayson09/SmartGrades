@@ -5,6 +5,7 @@ ktor-version = "3.3.3"
 logback-version = "1.4.14"
 mongo-version = "4.10.2"
 configlib = "4.6.3"
+spotless-version = "7.0.2"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -36,3 +37,4 @@ configlib-yaml = { module = "de.exlll:configlib-yaml", version.ref = "configlib"
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
 kotlin-plugin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless-version" }

@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Grade (
+data class Grade(
     @SerialName("_id")
     val id: String,
     val subjectId: String,
@@ -18,5 +18,5 @@ enum class GradeType {
     ORAL,
     EXAM,
     QUIZ,
-    PRESENTATION
+    PRESENTATION,
 }

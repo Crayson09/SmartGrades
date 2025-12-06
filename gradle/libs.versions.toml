@@ -12,6 +12,7 @@ ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-ve
 ktor-server-cors = { module= "io.ktor:ktor-server-cors", version.ref = "ktor-version"}
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-version" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor-version" }
+ktor-server-di = { module = "io.ktor:ktor-server-di", version.ref = "ktor-version" }
 
 mongodb-driver-kotlin = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongo-version" }
 bson = { module = "org.mongodb:bson", version.ref = "mongo-version" }

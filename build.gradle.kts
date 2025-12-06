@@ -1,4 +1,5 @@
 import com.diffplug.spotless.LineEnding
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -16,6 +17,7 @@ application {
 }
 
 dependencies {
+    implementation(libs.ktor.server.di)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.serialization.kotlinx.json)
@@ -66,4 +68,8 @@ spotless {
         leadingTabsToSpaces()
         endWithNewline()
     }
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
 }

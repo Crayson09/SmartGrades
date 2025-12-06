@@ -1,11 +1,11 @@
 package dev.crayson.smartgrades.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.bson.codecs.pojo.annotations.BsonId
 
 @Serializable
 data class Grade(
-    @SerialName("_id")
+    @BsonId
     val id: String,
     val subjectId: String,
     val value: Int,

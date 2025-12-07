@@ -13,18 +13,18 @@ class MongoDBUUIDCodec(
 ) : Codec<UUID> {
     private val stringCodec: Codec<String> = registry[String::class.java]
 
-    override fun encode(
-        writer: BsonWriter?,
-        value: UUID?,
-        context: EncoderContext?,
-    ) {
-        stringCodec.encode(writer, value!!.toString(), context)
-    }
-
     override fun getEncoderClass(): Class<UUID> = UUID::class.java
 
+    override fun encode(
+        writer: BsonWriter,
+        value: UUID,
+        context: EncoderContext,
+    ) {
+        stringCodec.encode(writer, value.toString(), context)
+    }
+
     override fun decode(
-        reader: BsonReader?,
-        context: DecoderContext?,
+        reader: BsonReader,
+        context: DecoderContext,
     ): UUID = UUID.fromString(stringCodec.decode(reader, context))
 }

@@ -1,13 +1,12 @@
 package dev.crayson.smartgrades.routes
 
-import dev.crayson.smartgrades.getUUID
 import dev.crayson.smartgrades.models.dto.student.StudentCreateRequest
 import dev.crayson.smartgrades.models.dto.student.StudentPatchRequest
-import dev.crayson.smartgrades.models.dto.subject.SubjectPatchRequest
 import dev.crayson.smartgrades.models.entity.Student
-import dev.crayson.smartgrades.models.entity.Subject
+import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.StudentService
 import dev.crayson.smartgrades.services.SubjectService
+import dev.crayson.smartgrades.util.getUUID
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -25,6 +24,7 @@ fun Application.configureStudentRoutes() {
     routing {
         val studentService: StudentService by dependencies
         val subjectService: SubjectService by dependencies
+        val gradeService: GradeService by dependencies
 
         get("/api/students") {
             val students = studentService.getAllStudents()
@@ -46,6 +46,28 @@ fun Application.configureStudentRoutes() {
             val uuid = getUUID("studentId")
             val subjects = subjectService.getAllSubjects(uuid)
             call.respond(HttpStatusCode.OK, subjects)
+        }
+
+        get("/api/students/{studentId}/subjects/{subjectId}/average") {
+            val studentId = getUUID("studentId")
+            val subjectId = getUUID("subjectId")
+
+            val subject = subjectService.getSubject(subjectId)
+            if (subject == null || subject.studentId != studentId) {
+                call.respond(HttpStatusCode.Forbidden, "Subject does not belong to student")
+                return@get
+            }
+
+            val grades = gradeService.getAllGrades(subjectId)
+
+            if (grades.isEmpty()) {
+                call.respond(HttpStatusCode.OK, 0.0)
+                return@get
+            }
+
+            val average = grades.map { it.value }.average()
+
+            call.respond(HttpStatusCode.OK, average)
         }
 
         post("/api/students") {

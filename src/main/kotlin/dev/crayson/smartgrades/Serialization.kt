@@ -7,11 +7,13 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import dev.crayson.smartgrades.util.serializer.json as CustomJson
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        json()
+        json(CustomJson)
     }
+
     routing {
         get("/json/kotlinx-serialization") {
             call.respond(mapOf("hello" to "world"))

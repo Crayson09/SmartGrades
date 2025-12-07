@@ -1,11 +1,11 @@
 package dev.crayson.smartgrades.routes
 
-import dev.crayson.smartgrades.getUUID
 import dev.crayson.smartgrades.models.dto.subject.SubjectCreateRequest
 import dev.crayson.smartgrades.models.dto.subject.SubjectPatchRequest
 import dev.crayson.smartgrades.models.entity.Subject
 import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.SubjectService
+import dev.crayson.smartgrades.util.getUUID
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application

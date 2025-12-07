@@ -1,4 +1,4 @@
-package dev.crayson.smartgrades
+package dev.crayson.smartgrades.util
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond

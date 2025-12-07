@@ -1,13 +1,12 @@
-package dev.crayson.smartgrades.models
+package dev.crayson.smartgrades.models.entity
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 
 @Serializable
 data class Student(
     @BsonId
-    val id: String,
+    val studentId: String,
     val name: String,
     val `class`: String,
     val school: String,

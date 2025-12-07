@@ -5,9 +5,9 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingContext
 import java.util.UUID
 
-suspend fun RoutingContext.getUUID(): UUID {
+suspend fun RoutingContext.getUUID(param: String? = null): UUID {
     val uuidParam =
-        call.parameters["uuid"]
+        call.parameters[param ?: "uuid"]
             ?: run {
                 call.respond(HttpStatusCode.BadRequest, "Missing UUID")
                 throw IllegalArgumentException("Missing UUID")

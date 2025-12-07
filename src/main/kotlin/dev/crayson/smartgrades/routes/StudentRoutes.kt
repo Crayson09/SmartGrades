@@ -1,9 +1,10 @@
 package dev.crayson.smartgrades.routes
 
 import dev.crayson.smartgrades.getUUID
-import dev.crayson.smartgrades.models.Student
-import dev.crayson.smartgrades.models.StudentCreateRequest
+import dev.crayson.smartgrades.models.dto.student.StudentCreateRequest
+import dev.crayson.smartgrades.models.entity.Student
 import dev.crayson.smartgrades.services.StudentService
+import dev.crayson.smartgrades.services.SubjectService
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
@@ -20,18 +21,15 @@ import io.ktor.server.routing.routing
 fun Application.configureStudentRoutes() {
     routing {
         val studentService: StudentService by dependencies
+        val subjectService: SubjectService by dependencies
 
         get("/api/students") {
             val students = studentService.getAllStudents()
-            if (students.isNotEmpty()) {
-                call.respond(HttpStatusCode.OK, students)
-            } else {
-                call.respond(HttpStatusCode.NoContent)
-            }
+            call.respond(HttpStatusCode.OK, students)
         }
 
-        get("/api/students/{uuid}") {
-            val uuid = getUUID()
+        get("/api/students/{studentId}") {
+            val uuid = getUUID("studentId")
             val student = studentService.getStudent(uuid)
 
             if (student != null) {
@@ -41,14 +39,26 @@ fun Application.configureStudentRoutes() {
             }
         }
 
+        get("/api/students/{studentId}/subjects") {
+            val uuid = getUUID("studentId")
+            val subjects = subjectService.getAllSubjects(uuid)
+            call.respond(HttpStatusCode.OK, subjects)
+        }
+
         post("/api/students") {
             val student = call.receive<StudentCreateRequest>()
             studentService.createStudent(student)
             call.respond(HttpStatusCode.Created)
         }
 
-        patch("/api/students") {
+        patch("/api/students/{studentId}") {
+            val studentId = getUUID("studentId")
             val student = call.receive<Student>()
+
+            if (studentId.toString() != student.studentId) {
+                return@patch call.respond(HttpStatusCode.BadRequest)
+            }
+
             val result = studentService.updateStudent(student)
             if (result) {
                 call.respond(HttpStatusCode.OK)
@@ -57,8 +67,8 @@ fun Application.configureStudentRoutes() {
             }
         }
 
-        delete("/api/students/{uuid}") {
-            val uuid = getUUID()
+        delete("/api/students/{studentId}") {
+            val uuid = getUUID("studentId")
             val result = studentService.deleteStudent(uuid)
             if (result) {
                 call.respond(HttpStatusCode.OK)

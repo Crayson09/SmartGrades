@@ -1,4 +1,4 @@
-package dev.crayson.smartgrades.models
+package dev.crayson.smartgrades.models.dto.student
 
 import kotlinx.serialization.Serializable
 

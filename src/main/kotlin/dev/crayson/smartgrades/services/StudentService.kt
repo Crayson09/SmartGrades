@@ -15,13 +15,13 @@ object StudentService {
 
     suspend fun getAllStudents(): List<Student> = collection.find().toList()
 
-    suspend fun getStudent(uuid: UUID) = collection.find(Filters.eq("_id", uuid.toString())).firstOrNull()
+    suspend fun getStudent(uuid: UUID) = collection.find(Filters.eq("_id", uuid)).firstOrNull()
 
     suspend fun createStudent(student: StudentCreateRequest) {
         val student =
             Student(
                 name = student.name,
-                studentId = UUID.randomUUID().toString(),
+                studentId = UUID.randomUUID(),
                 `class` = student.`class`,
                 school = student.school,
             )
@@ -33,13 +33,13 @@ object StudentService {
             collection.replaceOne(
                 Filters.eq("_id", student.studentId),
                 student,
-                ReplaceOptions().upsert(true),
+                ReplaceOptions().upsert(false),
             )
-        return result.modifiedCount > 0 || result.upsertedId != null
+        return result.modifiedCount > 0
     }
 
     suspend fun deleteStudent(uuid: UUID): Boolean {
-        val result = collection.deleteOne(Filters.eq("_id", uuid.toString()))
+        val result = collection.deleteOne(Filters.eq("_id", uuid))
         return result.deletedCount > 0
     }
 }

@@ -1,6 +1,7 @@
 package dev.crayson.smartgrades
 
 import dev.crayson.smartgrades.database.configureDatabases
+import dev.crayson.smartgrades.routes.configureGradeRoutes
 import dev.crayson.smartgrades.routes.configureStudentRoutes
 import dev.crayson.smartgrades.routes.configureSubjectRoutes
 import io.ktor.server.application.Application
@@ -18,4 +19,5 @@ fun Application.module() {
     configureRouting()
     configureStudentRoutes()
     configureSubjectRoutes()
+    configureGradeRoutes()
 }

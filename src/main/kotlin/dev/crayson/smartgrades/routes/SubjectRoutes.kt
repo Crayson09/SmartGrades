@@ -2,7 +2,9 @@ package dev.crayson.smartgrades.routes
 
 import dev.crayson.smartgrades.getUUID
 import dev.crayson.smartgrades.models.dto.subject.SubjectCreateRequest
+import dev.crayson.smartgrades.models.dto.subject.SubjectPatchRequest
 import dev.crayson.smartgrades.models.entity.Subject
+import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.SubjectService
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
@@ -20,6 +22,7 @@ import io.ktor.server.routing.routing
 fun Application.configureSubjectRoutes() {
     routing {
         val subjectService: SubjectService by dependencies
+        val gradeService: GradeService by dependencies
 
         get("/api/subjects/{subjectId}") {
             val uuid = getUUID("subjectId")
@@ -27,8 +30,14 @@ fun Application.configureSubjectRoutes() {
             if (subject != null) {
                 call.respond(HttpStatusCode.OK, subject)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Subject not found")
             }
+        }
+
+        get("/api/subjects/{subjectId}/grades") {
+            val subjectId = getUUID("subjectId")
+            val grades = gradeService.getAllGrades(subjectId)
+            call.respond(HttpStatusCode.OK, grades)
         }
 
         post("/api/subjects") {
@@ -39,17 +48,22 @@ fun Application.configureSubjectRoutes() {
 
         patch("/api/subjects/{subjectId}") {
             val subjectId = getUUID("subjectId")
-            val subject = call.receive<Subject>()
+            val subjectPatch = call.receive<SubjectPatchRequest>()
 
-            if (subjectId.toString() != subject.subjectId) {
-                return@patch call.respond(HttpStatusCode.BadRequest)
-            }
+            val oldSubject = subjectService.getSubject(subjectId)
 
-            val result = subjectService.updateSubject(subject)
-            if (result) {
+            if (oldSubject != null) {
+                val newSubject =
+                    Subject(
+                        subjectId,
+                        studentId = subjectPatch.studentId ?: oldSubject.studentId,
+                        name = subjectPatch.name ?: oldSubject.name,
+                        subjectType = subjectPatch.subjectType ?: oldSubject.subjectType,
+                    )
+                subjectService.updateSubject(newSubject)
                 call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Subject not found")
             }
         }
 
@@ -59,7 +73,7 @@ fun Application.configureSubjectRoutes() {
             if (result) {
                 call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Subject not found")
             }
         }
     }

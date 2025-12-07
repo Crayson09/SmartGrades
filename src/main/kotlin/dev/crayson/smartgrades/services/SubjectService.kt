@@ -16,21 +16,21 @@ object SubjectService {
 
     suspend fun getAllSubjects(studentId: UUID): List<Subject> =
         collection
-            .find(Filters.eq("studentId", studentId.toString()))
+            .find(Filters.eq("studentId", studentId))
             .toList()
 
     suspend fun getSubject(subjectId: UUID): Subject? =
         collection
-            .find(Filters.eq("_id", subjectId.toString()))
+            .find(Filters.eq("_id", subjectId))
             .firstOrNull()
 
     suspend fun createSubject(request: SubjectCreateRequest) {
         val subject =
             Subject(
-                subjectId = UUID.randomUUID().toString(),
+                subjectId = UUID.randomUUID(),
                 studentId = request.studentId,
                 name = request.name,
-                subjectTyp = request.subjectType,
+                subjectType = request.subjectType,
             )
 
         collection.insertOne(subject)
@@ -41,7 +41,7 @@ object SubjectService {
             collection.replaceOne(
                 Filters.eq("_id", subject.subjectId),
                 subject,
-                ReplaceOptions().upsert(true),
+                ReplaceOptions().upsert(false),
             )
 
         return result.modifiedCount > 0
@@ -49,7 +49,7 @@ object SubjectService {
 
     suspend fun deleteSubject(subjectId: UUID): Boolean {
         val result =
-            collection.deleteOne(Filters.eq("_id", subjectId.toString()))
+            collection.deleteOne(Filters.eq("_id", subjectId))
 
         return result.deletedCount > 0
     }

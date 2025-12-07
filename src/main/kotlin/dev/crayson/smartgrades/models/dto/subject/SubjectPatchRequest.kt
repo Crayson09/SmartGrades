@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 
 @Serializable
-data class SubjectCreateRequest(
+data class SubjectPatchRequest(
     @Contextual
-    val studentId: UUID,
-    val name: String,
-    val subjectType: SubjectType,
+    val studentId: UUID? = null,
+    val name: String? = null,
+    val subjectType: SubjectType? = null,
 )

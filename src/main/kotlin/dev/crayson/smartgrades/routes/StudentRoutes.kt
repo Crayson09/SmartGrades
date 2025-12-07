@@ -2,7 +2,10 @@ package dev.crayson.smartgrades.routes
 
 import dev.crayson.smartgrades.getUUID
 import dev.crayson.smartgrades.models.dto.student.StudentCreateRequest
+import dev.crayson.smartgrades.models.dto.student.StudentPatchRequest
+import dev.crayson.smartgrades.models.dto.subject.SubjectPatchRequest
 import dev.crayson.smartgrades.models.entity.Student
+import dev.crayson.smartgrades.models.entity.Subject
 import dev.crayson.smartgrades.services.StudentService
 import dev.crayson.smartgrades.services.SubjectService
 import io.github.tabilzad.ktor.annotations.GenerateOpenApi
@@ -53,17 +56,22 @@ fun Application.configureStudentRoutes() {
 
         patch("/api/students/{studentId}") {
             val studentId = getUUID("studentId")
-            val student = call.receive<Student>()
+            val studentPatch = call.receive<StudentPatchRequest>()
 
-            if (studentId.toString() != student.studentId) {
-                return@patch call.respond(HttpStatusCode.BadRequest)
-            }
+            val oldStudent = studentService.getStudent(studentId)
 
-            val result = studentService.updateStudent(student)
-            if (result) {
+            if (oldStudent != null) {
+                val newStudent =
+                    Student(
+                        studentId,
+                        name = studentPatch.name ?: oldStudent.name,
+                        `class` = studentPatch.`class` ?: oldStudent.`class`,
+                        school = studentPatch.school ?: oldStudent.school,
+                    )
+                studentService.updateStudent(newStudent)
                 call.respond(HttpStatusCode.OK)
             } else {
-                call.respond(HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.NotFound, "Student not found")
             }
         }
 

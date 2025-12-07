@@ -1,5 +1,6 @@
 package dev.crayson.smartgrades
 
+import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.StudentService
 import dev.crayson.smartgrades.services.SubjectService
 import io.ktor.server.application.Application
@@ -9,5 +10,6 @@ fun Application.configureDependencyInjection() {
     dependencies {
         provide<StudentService> { StudentService }
         provide<SubjectService> { SubjectService }
+        provide<GradeService> { GradeService }
     }
 }

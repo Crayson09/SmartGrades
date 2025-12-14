@@ -16,7 +16,6 @@ data class Student(
     val studentId: UUID,
     val name: String,
     val email: String,
-    // TODO test if password transient ist working
     @Transient
     val password: String = "",
     val `class`: String,

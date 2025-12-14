@@ -24,7 +24,7 @@ object SubjectService {
             .find(Filters.eq("_id", subjectId))
             .firstOrNull()
 
-    suspend fun createSubject(request: SubjectCreateRequest) {
+    suspend fun createSubject(request: SubjectCreateRequest): Subject {
         val subject =
             Subject(
                 subjectId = UUID.randomUUID(),
@@ -34,6 +34,7 @@ object SubjectService {
             )
 
         collection.insertOne(subject)
+        return subject
     }
 
     suspend fun updateSubject(subject: Subject): Boolean {

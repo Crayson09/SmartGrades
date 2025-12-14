@@ -1,10 +1,12 @@
-package dev.crayson.smartgrades.models.dto.student
+package dev.crayson.smartgrades.models.dto.auth
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StudentCreateRequest(
+data class RegisterRequest(
     val name: String,
+    val email: String,
+    val password: String,
     val `class`: String,
     val school: String,
 )

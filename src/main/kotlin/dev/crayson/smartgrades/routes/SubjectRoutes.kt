@@ -1,14 +1,14 @@
 package dev.crayson.smartgrades.routes
 
+import dev.crayson.smartgrades.models.dto.ApiResponse
 import dev.crayson.smartgrades.models.dto.subject.SubjectCreateRequest
 import dev.crayson.smartgrades.models.dto.subject.SubjectPatchRequest
-import dev.crayson.smartgrades.models.entity.Subject
 import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.SubjectService
 import dev.crayson.smartgrades.util.getUUID
-import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.di.dependencies
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -18,62 +18,63 @@ import io.ktor.server.routing.patch
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
-@GenerateOpenApi
 fun Application.configureSubjectRoutes() {
     routing {
-        val subjectService: SubjectService by dependencies
-        val gradeService: GradeService by dependencies
+        authenticate("auth-jwt") {
+            val subjectService: SubjectService by dependencies
+            val gradeService: GradeService by dependencies
 
-        get("/api/subjects/{subjectId}") {
-            val uuid = getUUID("subjectId")
-            val subject = subjectService.getSubject(uuid)
-            if (subject != null) {
+            get("/api/subjects/{subjectId}") {
+                val subjectId = getUUID("subjectId")
+                val subject =
+                    subjectService.getSubject(subjectId)
+                        ?: return@get call.respond(HttpStatusCode.NotFound, ApiResponse("Subject not found"))
+
                 call.respond(HttpStatusCode.OK, subject)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Subject not found")
             }
-        }
 
-        get("/api/subjects/{subjectId}/grades") {
-            val subjectId = getUUID("subjectId")
-            val grades = gradeService.getAllGrades(subjectId)
-            call.respond(HttpStatusCode.OK, grades)
-        }
+            get("/api/subjects/{subjectId}/grades") {
+                val subjectId = getUUID("subjectId")
+                val grades = gradeService.getAllGrades(subjectId)
 
-        post("/api/subjects") {
-            val request = call.receive<SubjectCreateRequest>()
-            subjectService.createSubject(request)
-            call.respond(HttpStatusCode.Created)
-        }
+                call.respond(HttpStatusCode.OK, grades)
+            }
 
-        patch("/api/subjects/{subjectId}") {
-            val subjectId = getUUID("subjectId")
-            val subjectPatch = call.receive<SubjectPatchRequest>()
+            post("/api/subjects") {
+                val request = call.receive<SubjectCreateRequest>()
+                val subject = subjectService.createSubject(request)
 
-            val oldSubject = subjectService.getSubject(subjectId)
+                call.respond(HttpStatusCode.Created, subject)
+            }
 
-            if (oldSubject != null) {
-                val newSubject =
-                    Subject(
-                        subjectId,
-                        studentId = subjectPatch.studentId ?: oldSubject.studentId,
-                        name = subjectPatch.name ?: oldSubject.name,
-                        subjectType = subjectPatch.subjectType ?: oldSubject.subjectType,
+            patch("/api/subjects/{subjectId}") {
+                val subjectId = getUUID("subjectId")
+                val patch = call.receive<SubjectPatchRequest>()
+
+                val old =
+                    subjectService.getSubject(subjectId)
+                        ?: return@patch call.respond(HttpStatusCode.NotFound, ApiResponse("Subject not found"))
+
+                val updated =
+                    old.copy(
+                        studentId = patch.studentId ?: old.studentId,
+                        name = patch.name ?: old.name,
+                        subjectType = patch.subjectType ?: old.subjectType,
                     )
-                subjectService.updateSubject(newSubject)
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Subject not found")
-            }
-        }
 
-        delete("/api/subjects/{subjectId}") {
-            val uuid = getUUID("subjectId")
-            val result = subjectService.deleteSubject(uuid)
-            if (result) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Subject not found")
+                subjectService.updateSubject(updated)
+                call.respond(HttpStatusCode.OK, ApiResponse("Subject updated"))
+            }
+
+            delete("/api/subjects/{subjectId}") {
+                val subjectId = getUUID("subjectId")
+                val deleted = subjectService.deleteSubject(subjectId)
+
+                if (deleted) {
+                    call.respond(HttpStatusCode.OK, ApiResponse("Subject deleted"))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, ApiResponse("Subject not found"))
+                }
             }
         }
     }

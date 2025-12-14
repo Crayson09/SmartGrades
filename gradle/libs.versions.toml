@@ -6,6 +6,7 @@ logback-version = "1.4.14"
 mongo-version = "4.10.2"
 configlib = "4.6.3"
 spotless-version = "7.0.2"
+bcrypt = "0.4"
 
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor-version" }
@@ -19,7 +20,6 @@ bson = { module = "org.mongodb:bson", version.ref = "mongo-version" }
 
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor-version" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor-version" }
-ktor-server-swagger = { module = "io.ktor:ktor-server-swagger", version.ref = "ktor-version" }
 ktor-server-http-redirect = { module = "io.ktor:ktor-server-http-redirect", version.ref = "ktor-version" }
 ktor-server-forwarded-header = { module = "io.ktor:ktor-server-forwarded-header", version.ref = "ktor-version" }
 ktor-server-default-headers = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor-version" }
@@ -33,6 +33,7 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 
 configlib-yaml = { module = "de.exlll:configlib-yaml", version.ref = "configlib" }
 
+bcrypt = { module = "org.mindrot:jbcrypt", version.ref = "bcrypt" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }

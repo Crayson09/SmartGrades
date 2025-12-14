@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.ktor)
     alias(libs.plugins.kotlin.plugin.serialization)
     alias(libs.plugins.spotless)
-    id("io.github.tabilzad.inspektor") version "0.8.9-alpha"
 }
 
 group = "dev.crayson.smartgrades"
@@ -26,7 +25,6 @@ dependencies {
     implementation(libs.bson)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
-    implementation(libs.ktor.server.swagger)
     implementation(libs.ktor.server.http.redirect)
     implementation(libs.ktor.server.forwarded.header)
     implementation(libs.ktor.server.default.headers)
@@ -34,27 +32,9 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.configlib.yaml)
     implementation(libs.ktor.server.config.yaml)
+    implementation(libs.bcrypt)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
-}
-
-swagger {
-    documentation {
-        generateRequestSchemas = true
-        hideTransientFields = true
-        hidePrivateAndInternalFields = true
-        deriveFieldRequirementFromTypeNullability = true
-        info {
-            title = "SmartGrade API"
-            version = "1.0"
-        }
-    }
-
-    pluginOptions {
-        enabled = true
-        format = "yaml"
-        saveInBuild = true
-    }
 }
 
 spotless {

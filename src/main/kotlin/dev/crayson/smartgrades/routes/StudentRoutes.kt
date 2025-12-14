@@ -1,109 +1,101 @@
 package dev.crayson.smartgrades.routes
 
-import dev.crayson.smartgrades.models.dto.student.StudentCreateRequest
+import dev.crayson.smartgrades.models.dto.ApiResponse
 import dev.crayson.smartgrades.models.dto.student.StudentPatchRequest
 import dev.crayson.smartgrades.models.entity.Student
+import dev.crayson.smartgrades.models.entity.Subject
 import dev.crayson.smartgrades.services.GradeService
 import dev.crayson.smartgrades.services.StudentService
 import dev.crayson.smartgrades.services.SubjectService
+import dev.crayson.smartgrades.util.PasswordManager
 import dev.crayson.smartgrades.util.getUUID
-import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
 import io.ktor.server.plugins.di.dependencies
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.patch
-import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 
-@GenerateOpenApi
 fun Application.configureStudentRoutes() {
     routing {
-        val studentService: StudentService by dependencies
-        val subjectService: SubjectService by dependencies
-        val gradeService: GradeService by dependencies
+        authenticate("auth-jwt") {
+            val studentService: StudentService by dependencies
+            val subjectService: SubjectService by dependencies
+            val gradeService: GradeService by dependencies
 
-        get("/api/students") {
-            val students = studentService.getAllStudents()
-            call.respond(HttpStatusCode.OK, students)
-        }
+            get("/api/students/{studentId}") {
+                val studentId = getUUID("studentId")
+                val student =
+                    studentService.getStudent(studentId)
+                        ?: return@get call.respond(HttpStatusCode.NotFound, ApiResponse("Student not found"))
 
-        get("/api/students/{studentId}") {
-            val uuid = getUUID("studentId")
-            val student = studentService.getStudent(uuid)
-
-            if (student != null) {
                 call.respond(HttpStatusCode.OK, student)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
-
-        get("/api/students/{studentId}/subjects") {
-            val uuid = getUUID("studentId")
-            val subjects = subjectService.getAllSubjects(uuid)
-            call.respond(HttpStatusCode.OK, subjects)
-        }
-
-        get("/api/students/{studentId}/subjects/{subjectId}/average") {
-            val studentId = getUUID("studentId")
-            val subjectId = getUUID("subjectId")
-
-            val subject = subjectService.getSubject(subjectId)
-            if (subject == null || subject.studentId != studentId) {
-                call.respond(HttpStatusCode.Forbidden, "Subject does not belong to student")
-                return@get
             }
 
-            val grades = gradeService.getAllGrades(subjectId)
+            get("/api/students/{studentId}/subjects") {
+                val studentId = getUUID("studentId")
+                val subjects = subjectService.getAllSubjects(studentId)
 
-            if (grades.isEmpty()) {
-                call.respond(HttpStatusCode.OK, 0.0)
-                return@get
+                call.respond(HttpStatusCode.OK, subjects)
             }
 
-            val average = grades.map { it.value }.average()
+            get("/api/students/{studentId}/subjects/{subjectId}/average") {
+                val studentId = getUUID("studentId")
+                val subjectId = getUUID("subjectId")
 
-            call.respond(HttpStatusCode.OK, average)
-        }
+                val subject =
+                    subjectService.getSubject(subjectId)
+                        ?: return@get call.respond(HttpStatusCode.NotFound, ApiResponse("Subject not found"))
 
-        post("/api/students") {
-            val student = call.receive<StudentCreateRequest>()
-            studentService.createStudent(student)
-            call.respond(HttpStatusCode.Created)
-        }
+                if (subject.studentId != studentId) {
+                    return@get call.respond(HttpStatusCode.Forbidden, ApiResponse("Subject does not belong to student"))
+                }
 
-        patch("/api/students/{studentId}") {
-            val studentId = getUUID("studentId")
-            val studentPatch = call.receive<StudentPatchRequest>()
+                val grades = gradeService.getAllGrades(subjectId)
+                if (grades.isEmpty()) {
+                    return@get call.respond(HttpStatusCode.NotFound, ApiResponse("No grades found"))
+                }
 
-            val oldStudent = studentService.getStudent(studentId)
+                val average = grades.map { it.value }.average()
+                call.respond(HttpStatusCode.OK, average)
+            }
 
-            if (oldStudent != null) {
-                val newStudent =
-                    Student(
-                        studentId,
-                        name = studentPatch.name ?: oldStudent.name,
-                        `class` = studentPatch.`class` ?: oldStudent.`class`,
-                        school = studentPatch.school ?: oldStudent.school,
+            patch("/api/students/{studentId}") {
+                val studentId = getUUID("studentId")
+                val patch = call.receive<StudentPatchRequest>()
+
+                val old =
+                    studentService.getStudent(studentId)
+                        ?: return@patch call.respond(HttpStatusCode.NotFound, ApiResponse("Student not found"))
+
+                val newPassword = patch.password?.let { PasswordManager.hashPassword(it) } ?: old.password
+
+                val updated =
+                    old.copy(
+                        name = patch.name ?: old.name,
+                        `class` = patch.`class` ?: old.`class`,
+                        school = patch.school ?: old.school,
+                        email = patch.email ?: old.email,
+                        password = newPassword,
                     )
-                studentService.updateStudent(newStudent)
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.NotFound, "Student not found")
-            }
-        }
 
-        delete("/api/students/{studentId}") {
-            val uuid = getUUID("studentId")
-            val result = studentService.deleteStudent(uuid)
-            if (result) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
+                studentService.updateStudent(updated)
+                call.respond(HttpStatusCode.OK, ApiResponse("Student updated"))
+            }
+
+            delete("/api/students/{studentId}") {
+                val studentId = getUUID("studentId")
+                val deleted = studentService.deleteStudent(studentId)
+
+                if (deleted) {
+                    call.respond(HttpStatusCode.OK, ApiResponse("Student deleted"))
+                } else {
+                    call.respond(HttpStatusCode.NotFound, ApiResponse("Student not found"))
+                }
             }
         }
     }

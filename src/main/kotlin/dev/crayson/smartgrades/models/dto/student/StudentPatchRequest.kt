@@ -7,4 +7,6 @@ data class StudentPatchRequest(
     val name: String? = null,
     val `class`: String? = null,
     val school: String? = null,
+    val email: String? = null,
+    val password: String? = null,
 )

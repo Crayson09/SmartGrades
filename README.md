@@ -1,44 +1,36 @@
+Alles klar, kurz und trocken. Kein Gelaber.
+
+---
+
 # SmartGrades
 
-## Konzept
+SmartGrades ist eine einfache Noten-App für Schüler, die ihre Schnitte **wirklich verstehen** wollen.
 
-* Noten eintragen
-* Termine für Klausuren festlegen
-* Automatische Berechnung: Welche Note brauchst du, um deine Gesamtwertung zu verbessern, zu halten oder zu verschlechtern
+Viele Apps mischen alle Noten zusammen und zeigen am Ende Zahlen, die keinen Sinn ergeben. SmartGrades macht’s klar und nachvollziehbar.
 
-## Daten-Struktur (MongoDB)
+---
 
-### Schüler (Collection: `students`)
+## Was geht
 
-```json
-{
-  "id": "UUID",
-  "name": "Max Mustermann",
-  "class": "11A",
-  "schule": "Gymnasium München"
-}
-```
+* Noten eintragen (Klausur, mündlich, Test, Ex)
+* Schnitt pro Fach
+* Trennung von Haupt- und Nebenfächern
+* Keine komischen Rechnungen oder Rundungen
 
-### Fach (Collection: `subjects`)
+---
 
-```json
-{
-  "id": "UUID",
-  "studentId": "UUID",        // Verweis auf Schüler
-  "name": "Mathe",
-  "fachTyp": "Hauptfach"      // Hauptfach, Nebenfach, etc.
-}
-```
+## Für wen
 
-### Note (Collection: `grades`)
+Für Schüler, die wissen wollen,
+ob sie gut stehen oder nachlegen müssen –
+ohne Mathe-Rätsel.
 
-```json
-{
-  "id": "UUID",
-  "subjectId": "UUID",       // Verweis auf Fach
-  "wert": 1,                 // z.B. 1–6 Punkte
-  "typ": "Klausur",          // Klausur, Mündlich, Ex
-  "datum": "2025-12-05"      // optional
-}
-```
+---
 
+## Idee
+
+Entstanden aus Frust über Noten-Apps,
+die Schnitte falsch oder unübersichtlich anzeigen.
+
+SmartGrades zeigt deine Noten so,
+wie sie auch wirklich zählen.

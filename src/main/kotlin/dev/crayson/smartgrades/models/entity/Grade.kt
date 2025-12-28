@@ -20,9 +20,9 @@ data class Grade(
 )
 
 @Serializable
-enum class GradeType {
-    ORAL,
-    EXAM,
-    QUIZ,
-    PRESENTATION,
+enum class GradeType(val value: Int) {
+    ORAL(1),
+    EXAM(2),
+    QUIZ(1),
+    PRESENTATION(1),
 }

@@ -2,6 +2,7 @@ package dev.crayson.smartgrades.routes
 
 import dev.crayson.smartgrades.models.dto.ApiResponse
 import dev.crayson.smartgrades.models.dto.student.StudentPatchRequest
+import dev.crayson.smartgrades.models.entity.GradeType
 import dev.crayson.smartgrades.models.entity.Student
 import dev.crayson.smartgrades.models.entity.Subject
 import dev.crayson.smartgrades.services.GradeService
@@ -47,22 +48,50 @@ fun Application.configureStudentRoutes() {
                 val studentId = getUUID("studentId")
                 val subjectId = getUUID("subjectId")
 
-                val subject =
-                    subjectService.getSubject(subjectId)
-                        ?: return@get call.respond(HttpStatusCode.NotFound, ApiResponse("Subject not found"))
+                val subject = subjectService.getSubject(subjectId)
+                    ?: return@get call.respond(
+                        HttpStatusCode.NotFound,
+                        ApiResponse("Subject not found")
+                    )
 
                 if (subject.studentId != studentId) {
-                    return@get call.respond(HttpStatusCode.Forbidden, ApiResponse("Subject does not belong to student"))
+                    return@get call.respond(
+                        HttpStatusCode.Forbidden,
+                        ApiResponse("Subject does not belong to student")
+                    )
                 }
 
                 val grades = gradeService.getAllGrades(subjectId)
                 if (grades.isEmpty()) {
-                    return@get call.respond(HttpStatusCode.NotFound, ApiResponse("No grades found"))
+                    return@get call.respond(
+                        HttpStatusCode.NotFound,
+                        ApiResponse("No grades found")
+                    )
                 }
 
-                val average = grades.map { it.value }.average()
-                call.respond(HttpStatusCode.OK, average)
+                val smallGrades = grades.filter {
+                    it.type == GradeType.ORAL ||
+                            it.type == GradeType.QUIZ ||
+                            it.type == GradeType.PRESENTATION
+                }
+
+                val examGrades = grades.filter { it.type == GradeType.EXAM }
+
+                if (smallGrades.isEmpty() || examGrades.isEmpty()) {
+                    return@get call.respond(
+                        HttpStatusCode.BadRequest,
+                        ApiResponse("Not enough grades to calculate average")
+                    )
+                }
+
+                val smallAverage = smallGrades.map { it.value }.average()
+                val examAverage = examGrades.map { it.value }.average()
+
+                val finalAverage = (smallAverage + examAverage * 2) / 3
+
+                call.respond(HttpStatusCode.OK, finalAverage)
             }
+
 
             patch("/api/students/{studentId}") {
                 val studentId = getUUID("studentId")

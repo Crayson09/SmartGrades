@@ -1,7 +1,3 @@
-Alles klar, kurz und trocken. Kein Gelaber.
-
----
-
 # SmartGrades
 
 SmartGrades ist eine einfache Noten-App für Schüler, die ihre Schnitte **wirklich verstehen** wollen.
